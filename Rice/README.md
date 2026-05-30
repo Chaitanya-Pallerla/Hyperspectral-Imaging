@@ -159,13 +159,6 @@ run('grid_loop_horizontal_rice.m')
 
 ---
 
-## 🔗 Related Work
-
-- **Rice chalkiness classification** — HSI + SFRM achieving 96.96% 3-class accuracy
-- **NAS-WD framework** — neural architecture search adapted for grain quality classification
-
----
-
 ## 📬 Contact
 
 Chaitanya Pallerla — `pallerla@uark.edu`  
