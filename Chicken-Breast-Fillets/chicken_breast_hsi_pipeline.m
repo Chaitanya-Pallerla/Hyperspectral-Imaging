@@ -10,14 +10,10 @@ close all
 % Root folder containing all your hyperspectral datasets
 % Windows example : "C:\Users\YourName\Data\woody_breast_400-1000nm\"
 % Mac/Linux example: "/home/yourname/data/woody_breast_400-1000nm/"
-DATA_ROOT = "O:\woody_breast_400-1000nm\";        % <-- CHANGE THIS
+DATA_ROOT = "\data path";        % <-- CHANGE THIS
 
 % Sample dataset name to process
-SAMPLE_NAME = "chai_WB_08_2025-02-20_23-04-36";   % <-- CHANGE THIS
-
-% Dataset name whose dark/white references will be used for calibration
-% (can be the same as SAMPLE_NAME, or a different session's references)
-REF_NAME = "Yang_ST_1_2025-02-28_20-10-22";       % <-- CHANGE THIS
+SAMPLE_NAME = "your sample name";   % <-- CHANGE THIS
 
 % Savitzky-Golay filter parameters
 window_size = 41;       % must be odd; larger = smoother
@@ -35,11 +31,11 @@ img_path        = DATA_ROOT + SAMPLE_NAME + "\" + SAMPLE_NAME + ".png";
 raw_data_headfile  = DATA_ROOT + SAMPLE_NAME + "\capture\" + SAMPLE_NAME + ".hdr";
 raw_data_datafile  = DATA_ROOT + SAMPLE_NAME + "\capture\" + SAMPLE_NAME + ".raw";
 
-dark_ref_headfile  = DATA_ROOT + REF_NAME + "\capture\DARKREF_"  + REF_NAME + ".hdr";
-dark_ref_datafile  = DATA_ROOT + REF_NAME + "\capture\DARKREF_"  + REF_NAME + ".raw";
+dark_ref_headfile  = DATA_ROOT + REF_NAME + "\capture\DARKREF_"  + SAMPLE_NAME + ".hdr";
+dark_ref_datafile  = DATA_ROOT + REF_NAME + "\capture\DARKREF_"  + SAMPLE_NAME + ".raw";
 
-white_ref_headfile = DATA_ROOT + REF_NAME + "\capture\WHITEREF_" + REF_NAME + ".hdr";
-white_ref_datafile = DATA_ROOT + REF_NAME + "\capture\WHITEREF_" + REF_NAME + ".raw";
+white_ref_headfile = DATA_ROOT + REF_NAME + "\capture\WHITEREF_" + SAMPLE_NAME + ".hdr";
+white_ref_datafile = DATA_ROOT + REF_NAME + "\capture\WHITEREF_" + SAMPLE_NAME + ".raw";
 
 % =========================================================================
 %  SEGMENTATION
