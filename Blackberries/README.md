@@ -201,13 +201,6 @@ The following scripts were development experiments and are kept for reference in
 
 ---
 
-## 🔗 Related Work
-
-- **Physics-Informed Spectral Transformer (PI-SpecTF)** — PINN-based TSS/°Brix prediction from NIR spectral data
-- **Blackberry NIR pipeline** — 1000–1700 nm extraction for sugar content regression
-
----
-
 ## 📬 Contact
 
 Chaitanya Pallerla — `pallerla@uark.edu`  
