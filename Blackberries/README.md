@@ -34,10 +34,17 @@ The pipeline runs in three stages — **segmentation → labelling → spectral 
   </tr>
 </table>
 
-### Single Berry Reflectance Spectrum
-![Single Berry Reflectance](./single_berry_reflectance_graph.png)
-*Mean calibrated reflectance spectrum (430–1000 nm) for a single blackberry after Savitzky-Golay smoothing.*
-
+<table>
+  <tr>
+    <td align="center"><b>Single Berry Reflectance Spectrum</b></td>
+  </tr>
+  <tr>
+    <td><img src="./single_berry_reflectance_graph.png" width="600"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Mean calibrated reflectance (430–1000 nm) after Savitzky-Golay smoothing.</em></td>
+  </tr>
+</table>
 > 📥 **[Download Sample Dataset (Google Drive)](https://drive.google.com/drive/folders/1p9c1barmlBz4l13Q3Wc0V8V5tfAg2Dyi?usp=drive_link)**  
 > Extract into your data root folder and update `SAMPLE_NAME` in the USER CONFIGURATION block to run the pipeline on this sample.
 
