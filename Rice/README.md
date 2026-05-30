@@ -18,7 +18,7 @@ Two rice types are supported: **rough rice** (unhusked) and **brown rice** (dehu
 
 ### Mean Reflectance Spectra
 
-<img src="./Brown_Rice_Graph.png" width="400" height="600"/> <img src="./Rough_Rice_Graph.png" width="400" height="300"/>
+<img src="./Brown_Rice_Graph.png" width="400" height="1000"/> <img src="./Rough_Rice_Graph.png" width="400" height="300"/>
 
 *Left: Brown rice (dehusked) — Right: Rough rice (unhusked). Mean normalised reflectance (400–1000 nm) after calibration.*
 
