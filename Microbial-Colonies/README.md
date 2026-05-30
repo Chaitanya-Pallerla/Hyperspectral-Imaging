@@ -183,12 +183,6 @@ Processed_output/
 
 ---
 
-## 🔗 Related Work
-
-- **NEAT-WaveFormer** — NEAT-evolved dual-channel TransformerMLP for 7-class microbial classification using VIS + NIR stacked spectra (manuscript in preparation)
-
----
-
 ## 📬 Contact
 
 Chaitanya Pallerla — `pallerla@uark.edu`  
