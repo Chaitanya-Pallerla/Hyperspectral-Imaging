@@ -17,10 +17,18 @@ Two scripts are provided — one for **single-sample** exploration and one for *
 ## 📸 Sample Data
 
 ### Normal Breast Fillet — RGB Preview
-![Normal Breast](./Normal%20Breast.png)
+![Normal Breast Fillet](./Normal_Breast_Fillet.png)
 *RGB preview of a normal chicken breast fillet imaged with the Specim FX10e. The white conveyor background is automatically removed during segmentation.*
 
-> **Sample dataset included:** `Chai_Chai_Normal_Chicken_14_Right_11192022.zip`  
+### Normal Breast Fillet — Segmented Mask
+![Segmented Image](./Segmented_Image.png)
+*Binary mask output after Otsu thresholding, hole filling, and noise removal. White region = fillet ROI used for spectral extraction.*
+
+### Normal Breast Fillet — Mean Reflectance Spectrum
+![Normal Breast Graph](./Normal_Breast_Graph.png)
+*Mean calibrated reflectance spectrum (400–1000 nm) for the normal breast fillet after Savitzky-Golay smoothing (window=41, order=2).*
+
+> 📥 **[Download Sample Dataset — Chai_Chai_Normal_Chicken_14_Right_11192022.zip (Google Drive)](https://drive.google.com/file/d/1rPGqgWL6uQZUAtxL6OM_ktbX96gPs6V_/view?usp=drive_link)**  
 > Extract it into your `DATA_ROOT` folder and set `SAMPLE_NAME` accordingly to run the pipeline on this sample.
 
 ---
@@ -31,6 +39,7 @@ Two scripts are provided — one for **single-sample** exploration and one for *
 |---|---|---|
 | `chicken_breast_hsi_pipeline.m` | Single sample | Load one sample by name, segment fillet, calibrate, extract ROI spectra, smooth, plot — good for exploring a new dataset or verifying results |
 | `Loop_Adaptive_Crop_Chicken.m` | Batch — all samples | Auto-detects every dataset folder under `base_path`, segments each fillet, applies adaptive crop, calibrates, extracts, saves CSV / MAT / plots for every sample automatically |
+| `Loop_Chicken.m` | Batch — simplified | Same batch loop without adaptive crop — uses full image mask directly, references captured in the same folder as each sample |
 
 ---
 
