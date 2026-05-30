@@ -29,7 +29,7 @@ The pipeline runs in three stages — **segmentation → labelling → spectral 
 *Binary mask with each berry assigned its physical box ID (1–120), sorted right→middle→left, top→bottom.*
 
 ### Single Berry Reflectance Spectrum
-![Single Berry Reflectance](./single_berry_reflectance_graph.png)
+![Single Berry Reflectance](./single_ berry_reflectance_graph.png)
 *Mean calibrated reflectance spectrum (430–1000 nm) for a single blackberry after Savitzky-Golay smoothing.*
 
 > 📥 **[Download Sample Dataset (Google Drive)](https://drive.google.com/drive/folders/1p9c1barmlBz4l13Q3Wc0V8V5tfAg2Dyi?usp=drive_link)**  
