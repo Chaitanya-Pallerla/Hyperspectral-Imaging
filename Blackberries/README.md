@@ -1,85 +1,135 @@
 # 🫐 Blackberries — Hyperspectral Imaging
 
-**Target:** Fruit quality — Total Soluble Solids (TSS / °Brix) prediction  
-**Sensor:** VIS + NIR Push-broom HSI Camera — 400–1700 nm  
+**Target:** Per-berry spectral characterisation — TSS (°Brix), ripeness, quality  
+**Camera:** Specim FX10e — VIS Push-broom HSI, 400–1000 nm, 448 bands  
 **Lab:** SAFE Lab, University of Arkansas
 
 ---
 
 ## Overview
 
-This sub-project processes hyperspectral image cubes of blackberry fruit to predict **Total Soluble Solids (TSS)**, measured in °Brix, as a proxy for ripeness and sweetness. TSS is a key quality metric in berry production and is traditionally measured destructively with a refractometer.
+This sub-project processes hyperspectral image cubes of blackberry fruit arranged in trays (boxes B1–B7, up to 18 berries per box, 120 berries total). Each berry is individually segmented, labelled with a unique ID, and its calibrated reflectance spectrum is extracted for downstream quality prediction (TSS, °Brix, firmness).
 
-HSI enables **non-destructive, spatially resolved** TSS mapping across the fruit surface, supporting both research and inline grading applications.
-
-The pipeline covers:
-1. Dark/white reference calibration across the full VIS–NIR range
-2. Fruit segmentation from the conveyor/tray background
-3. Per-pixel spectral extraction and SNV (Standard Normal Variate) normalisation
-4. Physics-informed feature engineering (spectral indices, FOD — First-Order Derivative)
-5. Export for regression modelling (PLSR, SVR, PINN)
+The pipeline runs in three stages — **segmentation → labelling → spectral extraction** — each with its own script.
 
 ---
 
 ## 📸 Sample Outputs
 
-> Place your figures inside the `sample_outputs/` folder and they will render here automatically.
+### Original Berry Image
+![Original Berry Image](./Original_Berry_Image.png)
+*Raw RGB image of blackberry tray captured with the Specim FX10e. Berries are arranged in a 3-column grid (18 per box).*
 
-### RGB Preview & Segmentation Mask
-| RGB Preview | Fruit Mask |
-|---|---|
-| ![RGB Preview](./sample_outputs/rgb_preview.png) | ![Fruit Mask](./sample_outputs/fruit_mask.png) |
+### Auto Segmentation
+![Auto Segmentation](./auto_segmentation.png)
+*Colour-coded connected components after circularity filtering — each colour represents a uniquely labelled berry blob.*
 
-### Mean Reflectance Spectrum (VIS–NIR)
-![Reflectance Spectra](./sample_outputs/reflectance_spectra.png)
-*Mean calibrated reflectance across the 400–1700 nm range for blackberries at different ripeness stages.*
+### Auto Berry Labelling
+![Auto Berry Labelling](./Auto_berry_labeling.png)
+*Binary mask with each berry assigned its physical box ID (1–120), sorted right→middle→left, top→bottom.*
 
-### TSS Prediction Map
-![TSS Map](./sample_outputs/tss_map.png)
-*Spatial °Brix prediction map overlaid on the fruit surface (false-colour, warm = higher TSS).*
+### Single Berry Reflectance Spectrum
+![Single Berry Reflectance](./single_berry_reflectance_graph.png)
+*Mean calibrated reflectance spectrum (430–1000 nm) for a single blackberry after Savitzky-Golay smoothing.*
+
+> 📥 **[Download Sample Dataset (Google Drive)](https://drive.google.com/drive/folders/1p9c1barmlBz4l13Q3Wc0V8V5tfAg2Dyi?usp=drive_link)**  
+> Extract into your data root folder and update `SAMPLE_NAME` in the USER CONFIGURATION block to run the pipeline on this sample.
 
 ---
 
 ## 📄 Scripts
 
-| Script | Description |
+| Script | Stage | Mode | Description |
+|---|---|---|---|
+| `blackberry_segmentation.m` | 1 — Segmentation | Batch | Applies adaptive histogram equalisation + circularity filter to isolate individual berry blobs; saves binary masks and green overlays |
+| `custom_blackberry_segmentation.m` | 1 — Segmentation | Interactive | Same auto-segmentation as above, but opens an interactive GUI brush tool (A=add, E=erase, slider=brush size) for manual mask correction; use when auto-segmentation misses or merges berries |
+| `labeling_blackberry.m` | 2 — Labelling | Batch | Reads binary masks, labels each berry blob with its physical box ID (1–120) sorted right→middle→left; saves labelled PNG images |
+| `single_berry_extract_data.m` | 3 — Extraction | Single sample | Segments one scan, calibrates, extracts spectra from circular berry mask — good for spot-checking a new dataset |
+| `berry_batch_extraction_optimized.m` | 3 — Extraction | Batch | Most optimised batch pipeline — wavelength cropping (430–1000 nm), vectorized median extraction, per-berry BW preview, saves stacks + 4 graph types |
+| `berry_batch_extraction_full.m` | 3 — Extraction | Batch | Same batch loop but loads dark/white refs from the **same folder** as each sample; saves per-berry MAT+CSV for raw, dark, and white in addition to calibrated reflectance |
+
+---
+
+## Which Extraction Script Should I Use?
+
+| Situation | Use |
 |---|---|
-| `spectral_extraction_calibration.m` | Loads ENVI cube, applies dark/white calibration, SNV normalisation, extracts ROI spectra, exports for regression |
-| `image_segmentation.m` | Segments individual berries using colour thresholding in HSV space and morphological operations; handles overlapping fruit via watershed separation |
+| Each dataset has its own dark/white references captured alongside it | `berry_batch_extraction_full.m` |
+| References are shared across a session (one ref set for all boxes) | `berry_batch_extraction_optimized.m` |
+| Exploring a single scan or checking segmentation | `single_berry_extract_data.m` |
+
+---
+
+## Pipeline
+
+```
+RGB Images (.png)
+      │
+      ▼
+blackberry_segmentation.m          → circular_masks/ + circular_overlays/
+      │  (or custom_blackberry_segmentation.m for manual correction)
+      ▼
+labeling_blackberry.m              → <folder>_labeled.png (berry IDs 1–120)
+      │
+      ▼
+single_berry_extract_data.m        → E_smoothed (single scan, workspace)
+  OR
+berry_batch_extraction_optimized.m → stacks + graphs (shared refs)
+  OR
+berry_batch_extraction_full.m      → stacks + graphs + per-berry raw/dark/white (per-sample refs)
+```
 
 ---
 
 ## 🗂️ Expected Data Structure
 
 ```
-<DATA_ROOT>/
-└── <SAMPLE_NAME>/
-    ├── <SAMPLE_NAME>.png
-    └── capture/
-        ├── <SAMPLE_NAME>.hdr
-        ├── <SAMPLE_NAME>.raw
-        ├── DARKREF_<REF_NAME>.hdr
-        ├── DARKREF_<REF_NAME>.raw
-        ├── WHITEREF_<REF_NAME>.hdr
-        └── WHITEREF_<REF_NAME>.raw
+<base_folder>/
+└── Caddo/
+    └── Caddo_Row_06_2025-06-24/
+        └── Anthony_Caddo_2025_06_24_0741_06_B1_2025-06-24_18-00-28/
+            ├── Anthony_Caddo_..._B1_....png     ← binary mask image (same name as folder)
+            └── capture/
+                ├── Anthony_Caddo_..._B1_....hdr / .raw     ← raw HSI cube
+                ├── DARKREF_Anthony_Caddo_..._B1_....hdr / .raw
+                └── WHITEREF_Anthony_Caddo_..._B1_....hdr / .raw
 ```
+
+**Folder naming convention:**
+```
+Anthony_<Variety>_<Date>_<Time>_<Row>_<BoxID>_<Timestamp>
+Example: Anthony_Caddo_2025_06_24_0741_06_B1_2025-06-24_18-00-28
+```
+Box IDs: B1–B6 (18 berries each, 3 columns × 6 rows), B7 (12 berries, 2 columns × 6 rows)
 
 ---
 
 ## ⚙️ Configuration
 
+Each script has a **USER CONFIGURATION** block at the top — the only section you need to edit. Set your local folder paths and the parameters below:
+
+### Segmentation scripts
 ```matlab
-% =========================================================================
-%  USER CONFIGURATION
-% =========================================================================
+input_folder          = 'your\path\to\Blackberry_images\';
+MIN_AREA              = 1500;    % minimum berry blob size in pixels
+CIRCULARITY_THRESHOLD = 0.3;     % 0 = any shape, 1 = perfect circle
+```
 
-DATA_ROOT   = "C:\Your\Data\Path\";          % <-- your local data folder
-SAMPLE_NAME = "your_sample_name_here";        % <-- sample dataset name
-REF_NAME    = "your_reference_name_here";     % <-- dark/white ref dataset name
+### Labelling script
+```matlab
+base_folder = 'your\path\to\Blackberry_data\';
+```
 
-% TSS reference values (from refractometer, one per fruit)
-% Used to pair spectral data with ground truth for regression
-TSS_REFERENCE = [12.3, 14.1, 11.8, 13.5];    % <-- °Brix values, one per sample
+### Single-sample extraction
+```matlab
+DATA_ROOT   = "your\path\to\dataset\row\folder\";
+SAMPLE_NAME = "your_sample_folder_name";
+IMG_NAME    = "your_rgb_image_name";
+```
+
+### Batch extraction scripts
+```matlab
+base_folder = 'your\path\to\Blackberry_data\';
 ```
 
 ---
@@ -87,27 +137,74 @@ TSS_REFERENCE = [12.3, 14.1, 11.8, 13.5];    % <-- °Brix values, one per sample
 ## 🚀 Quick Start
 
 ```matlab
-cd('path/to/Hyperspectral-Imaging/Blackberries')
-run('image_segmentation.m')          % verify fruit masks
-run('spectral_extraction_calibration.m')   % extract + export spectra
+cd('C:\Hyperspectral-Imaging\Blackberries')
+
+% Step 1: Auto-segment all berry images
+run('blackberry_segmentation.m')
+
+% Step 1b (optional): Manual correction for any difficult images
+run('custom_blackberry_segmentation.m')
+
+% Step 2: Label each berry with its physical box ID
+run('labeling_blackberry.m')
+
+% Step 3a: Batch extract (per-sample refs, most complete output)
+run('berry_batch_extraction_full.m')
+
+% Step 3b: OR batch extract (shared refs, optimised/faster)
+run('berry_batch_extraction_optimized.m')
 ```
 
 ---
 
-## 📊 Output Variables
+## 📊 Output Variables & Files
+
+### Single-sample script (workspace)
 
 | Variable | Size | Description |
 |---|---|---|
-| `BW` | H × W | Binary mask (1 = fruit pixels) |
+| `circular_mask` | H × W | Binary berry mask |
 | `calibrated_data` | H × W × Bands | Calibrated reflectance cube |
-| `spectra_snv` | Bands × N_pixels | SNV-normalised per-pixel spectra |
-| `E_smoothed` | Bands × 1 | Mean smoothed spectrum |
+| `extracted_data` | Bands × N\_pixels | Per-pixel spectra |
+| `E` | Bands × 1 | Raw mean spectrum |
+| `E_smoothed` | Bands × 1 | SG-smoothed mean spectrum |
+
+### Batch scripts (saved per Anthony folder)
+
+| Output | Folder | Description |
+|---|---|---|
+| `stack_<B#>.mat` | `data/` | All 4 stacks: reflectance, raw, dark, white |
+| `stack_<B#>_reflectance.csv` | `data/` | Per-berry smoothed reflectance (Bands × N_berries) |
+| `stack_<B#>_raw.csv` | `data/` | Per-berry raw intensity |
+| `<name>_graph.png` | `graph/` | Per-berry reflectance plot |
+| `<name>_raw.png` | `raw_graphs/` | Per-berry raw intensity plot |
+| `<name>_dark.png` | `dark_graphs/` | Dark reference plot |
+| `<name>_white.png` | `white_graphs/` | White reference plot |
+| `<name>_label.png` | `label/` | Mask with berry ID overlay |
+| `<name>_raw.mat/.csv` | `data_raw/` | Per-berry E_raw + wavelength *(full script only)* |
+| `<name>_dark.mat/.csv` | `data_dark/` | Per-berry E_dark + wavelength *(full script only)* |
+| `<name>_white.mat/.csv` | `data_white/` | Per-berry E_white + wavelength *(full script only)* |
+
+---
+
+## 🗂️ Archived Scripts
+
+The following scripts were development experiments and are kept for reference in the `archive/` folder:
+
+| Script | Reason archived |
+|---|---|
+| `Test_1_Berry_Seg.m` | Experimental — circularity + clustering + edge/entropy maps, not used in final pipeline |
+| `Test_2_Berry_Seg.m` | Experimental — Bresenham centroid connection approach |
+| `Test_3_Berry_Seg.m` | Experimental — graythresh + dilation blob connection |
+| `Berry_spectral_extraction.m` | Superseded by `berry_batch_extraction_full.m` |
+| `Berry_spectral_extraction2.m` | Superseded by `berry_batch_extraction_optimized.m` |
 
 ---
 
 ## 🔗 Related Work
 
-- **Physics-Informed Spectral Transformer (PI-SpecTF)** — PINN-based TSS prediction from NIR spectral data with 9 physics loss terms
+- **Physics-Informed Spectral Transformer (PI-SpecTF)** — PINN-based TSS/°Brix prediction from NIR spectral data
+- **Blackberry NIR pipeline** — 1000–1700 nm extraction for sugar content regression
 
 ---
 
