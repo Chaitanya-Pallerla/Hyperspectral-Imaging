@@ -127,19 +127,17 @@ References live in a separate `base_path1` folder. The script auto-discovers all
 Edit the **USER CONFIGURATION** block at the top — 3 variables only:
 
 ```matlab
-DATA_ROOT   = "O:\woody_breast_400-1000nm\";        % <-- your data folder
-SAMPLE_NAME = "chai_WB_08_2025-02-20_23-04-36";     % <-- sample to process
-REF_NAME    = "Yang_ST_1_2025-02-28_20-10-22";      % <-- dark/white ref dataset
+DATA_ROOT   = "\your data folder path";        % <-- your data folder
+SAMPLE_NAME = "your sample name";     % <-- sample to process
 ```
 
 ### Batch script
 Edit the paths block at the top:
 
 ```matlab
-base_path     = "O:\HSI_folder_with_all_samples\";       % <-- folder with all samples
+base_path     = "\your data folder path";       % <-- folder with all samples
 output_root   = "C:\Users\YourName\Downloads\outputs\";  % <-- where to save results
 base_path1    = "C:\Users\YourName\Downloads\";          % <-- folder with references
-dataset_name1 = "Yang_ST_1_2025-02-28_20-10-22";        % <-- reference dataset name
 ```
 
 ---
@@ -198,15 +196,6 @@ run('Loop_Adaptive_Crop_Chicken.m')
 | Border removal | No | Yes — `imclearborder` removes edge-touching objects |
 | Thin bar removal | No | Yes — removes horizontal conveyor artifacts |
 | Output | Workspace variables + interactive plot | CSV, MAT, .m, and PNG per sample auto-saved |
-| References location | Same `DATA_ROOT`, separate `REF_NAME` | Separate `base_path1` folder |
-
----
-
-## 🔗 Related Work
-
-- **MyoVision** — real-time myopathy detection iOS app using NEATBoost-Attention ensemble (CVPR Workshop 2026)
-- **NAS-WD** — neural architecture search for woody breast detection (Artificial Intelligence in Agriculture, 2024)
-- **AS7265x multispectral sensor** — low-cost 18-band chipset achieving 92% 3-class accuracy
 
 ---
 
