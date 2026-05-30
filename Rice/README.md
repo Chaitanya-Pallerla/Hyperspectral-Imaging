@@ -27,13 +27,12 @@ Two rice types are supported: **rough rice** (unhusked) and **brown rice** (dehu
 ## 🎥 Sample Videos
 
 ### Grain-by-Grain Extraction — Grains 1–100
-> 📹 **[Watch on Google Drive — grain1-100.mp4](https://drive.google.com/file/d/1oB54OFdD-_Ni6t64uoQS8kMYxeMPZIXV/view?usp=drive_link)**  
+> 📹 **[Watch on Google Drive — grain1-100.mp4]([https://drive.google.com/file/d/1oB54OFdD-_Ni6t64uoQS8kMYxeMPZIXV/view?usp=drive_link](https://drive.google.com/file/d/1Qmv-256SMF8ZDDNFRR1X3NTSWahQDMSQ/view?usp=drive_link))**  
 > Shows the per-grain loop cycling through each binary mask and reflectance plot for grains 1–100.
 
-### Full Grid Loop Processing
-> 📹 **[Watch on Google Drive — Grid Loop Processing](https://drive.google.com/file/d/1Wm6B7jGv6UJ2TtFJZ_IyCXzP6mB86y9R/view?usp=drive_link)**  
-> Demonstrates the complete horizontal grid extraction pipeline — segmentation, row sorting, and per-grain calibration.
-
+### Sample Data
+> 📹 **[chai_Brown_rice_1-100_2024-11-11_19-03-11](https://drive.google.com/file/d/1Wm6B7jGv6UJ2TtFJZ_IyCXzP6mB86y9R/view?usp=drive_link)**  
+**[chai_retook_rice_Rough_201-300_2024-11-17_21-44-45]([https://drive.google.com/file/d/1Wm6B7jGv6UJ2TtFJZ_IyCXzP6mB86y9R/view?usp=drive_link](https://drive.google.com/file/d/1oB54OFdD-_Ni6t64uoQS8kMYxeMPZIXV/view?usp=drive_link))**  
 ---
 
 ## 📄 Scripts
