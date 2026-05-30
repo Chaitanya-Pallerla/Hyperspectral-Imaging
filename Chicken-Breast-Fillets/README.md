@@ -20,18 +20,26 @@ Two scripts are provided — one for **single-sample** exploration and one for *
 ![Normal Breast Fillet](./Normal_Breast_Fillet.png)
 *RGB preview of a normal chicken breast fillet imaged with the Specim FX10e. The white conveyor background is automatically removed during segmentation.*
 
-### Normal Breast Fillet — Segmented Mask
-![Segmented Image](./Segmented_Image.png)
-*Binary mask output after Otsu thresholding, hole filling, and noise removal. White region = fillet ROI used for spectral extraction.*
-
-### Normal Breast Fillet — Mean Reflectance Spectrum
-![Normal Breast Graph](./Normal_Breast_Graph.png)
-*Mean calibrated reflectance spectrum (400–1000 nm) for the normal breast fillet after Savitzky-Golay smoothing (window=41, order=2).*
+<table>
+  <tr>
+    <td align="center"><b>RGB Preview</b><br/><em>(rotate 90° if needed)</em></td>
+    <td align="center"><b>Segmented Mask</b></td>
+    <td align="center"><b>Mean Reflectance Spectrum</b></td>
+  </tr>
+  <tr>
+    <td><img src="./Normal_Breast_Fillet.png" width="250"/></td>
+    <td><img src="./Segmented_Image.png" width="250"/></td>
+    <td><img src="./Normal_Breast_Graph.png" width="250"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Normal breast fillet — Specim FX10e.</em></td>
+    <td align="center"><em>Otsu threshold + hole fill + noise removal.</em></td>
+    <td align="center"><em>400–1000 nm, SG smoothed (window=41, order=2).</em></td>
+  </tr>
+</table>
 
 > 📥 **[Download Sample Dataset — Chai_Chai_Normal_Chicken_14_Right_11192022.zip (Google Drive)](https://drive.google.com/file/d/1rPGqgWL6uQZUAtxL6OM_ktbX96gPs6V_/view?usp=drive_link)**  
 > Extract it into your `DATA_ROOT` folder and set `SAMPLE_NAME` accordingly to run the pipeline on this sample.
-
----
 
 ## 📄 Scripts
 
