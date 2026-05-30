@@ -16,17 +16,23 @@ The pipeline runs in three stages — **segmentation → labelling → spectral 
 
 ## 📸 Sample Outputs
 
-### Original Berry Image
-![Original Berry Image](./Original_Berry_Image.png)
-*Raw RGB image of blackberry tray captured with the Specim FX10e. Berries are arranged in a 3-column grid (18 per box).*
-
-### Auto Segmentation
-![Auto Segmentation](./auto_segmentation.png)
-*Colour-coded connected components after circularity filtering — each colour represents a uniquely labelled berry blob.*
-
-### Auto Berry Labelling
-![Auto Berry Labelling](./Auto_berry_labeling.png)
-*Binary mask with each berry assigned its physical box ID (1–120), sorted right→middle→left, top→bottom.*
+<table>
+  <tr>
+    <td align="center"><b>Original Berry Image</b></td>
+    <td align="center"><b>Auto Segmentation</b></td>
+    <td align="center"><b>Auto Berry Labelling</b></td>
+  </tr>
+  <tr>
+    <td><img src="./Original_Berry_Image.png" width="250"/></td>
+    <td><img src="./auto_segmentation.png" width="250"/></td>
+    <td><img src="./Auto_berry_labeling.png" width="250"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Raw RGB image — Specim FX10e. Berries arranged in 3-column grid (18 per box).</em></td>
+    <td align="center"><em>Colour-coded connected components after circularity filtering.</em></td>
+    <td align="center"><em>Berry IDs (1–120) sorted right→middle→left, top→bottom.</em></td>
+  </tr>
+</table>
 
 ### Single Berry Reflectance Spectrum
 ![Single Berry Reflectance](./single_berry_reflectance_graph.png)
