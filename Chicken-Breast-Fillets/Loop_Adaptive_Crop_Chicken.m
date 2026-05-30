@@ -91,10 +91,10 @@ for d = 1:numel(dataset_list)
     %% ---------- READ ENVI ----------
     raw_hdr   = base_path + dataset_name + "\capture\" + dataset_name + ".hdr";
     raw_raw   = base_path + dataset_name + "\capture\" + dataset_name + ".raw";
-    dark_hdr  = base_path1 + dataset_name + "\capture\DARKREF_"  + dataset_name + ".hdr";
-    dark_raw  = base_path1 + dataset_name + "\capture\DARKREF_"  + dataset_name + ".raw";
-    white_hdr = base_path1 + dataset_name + "\capture\WHITEREF_" + dataset_name + ".hdr";
-    white_raw = base_path1 + dataset_name + "\capture\WHITEREF_" + dataset_name + ".raw";
+    dark_hdr  = base_path + dataset_name + "\capture\DARKREF_"  + dataset_name + ".hdr";
+    dark_raw  = base_path + dataset_name + "\capture\DARKREF_"  + dataset_name + ".raw";
+    white_hdr = base_path + dataset_name + "\capture\WHITEREF_" + dataset_name + ".hdr";
+    white_raw = base_path + dataset_name + "\capture\WHITEREF_" + dataset_name + ".raw";
 
     raw_info = enviinfo(raw_hdr);
     raw_data = multibandread(raw_raw,[raw_info.Height raw_info.Width raw_info.Bands],...
