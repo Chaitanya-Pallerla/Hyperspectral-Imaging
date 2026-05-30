@@ -16,13 +16,9 @@ Two scripts are provided — one for **single-sample** exploration and one for *
 
 ## 📸 Sample Data
 
-### Normal Breast Fillet — RGB Preview
-![Normal Breast Fillet](./Normal_Breast_Fillet.png)
-*RGB preview of a normal chicken breast fillet imaged with the Specim FX10e. The white conveyor background is automatically removed during segmentation.*
-
 <table>
   <tr>
-    <td align="center"><b>RGB Preview</b><br/><em>(rotate 90° if needed)</em></td>
+    <td align="center"><b>RGB Preview</b></td>
     <td align="center"><b>Segmented Mask</b></td>
     <td align="center"><b>Mean Reflectance Spectrum</b></td>
   </tr>
