@@ -1,90 +1,120 @@
 # 🧫 Microbial Colonies — Hyperspectral Imaging
 
-**Target:** Colony-level microbial classification (E. coli, Listeria, Salmonella, and others)  
-**Sensor:** VIS Push-broom HSI Camera — 400–1000 nm, 448 bands  
+**Target:** Per-colony microbial species classification  
+**Camera:** Specim FX10e (VIS 400–1000 nm, 448 bands) + Specim FX17 (NIR 1000–1700 nm, 224 bands)  
 **Lab:** SAFE Lab, University of Arkansas
 
 ---
 
 ## Overview
 
-This sub-project processes hyperspectral image cubes of agar plates to classify **microbial colonies** by species based on their spectral reflectance signatures. Traditional microbial identification requires 24–72 hours of culturing and biochemical testing. HSI offers a potential pathway to faster, **non-destructive, label-free** colony identification directly from the plate.
+This sub-project processes hyperspectral image cubes of microbial agar plates to extract per-colony reflectance spectra for species classification. Each colony is individually segmented from the agar background using CLAHE contrast enhancement and inverted Otsu thresholding, and its calibrated spectrum is extracted and smoothed.
 
-Each colony type produces a characteristic spectral profile driven by differences in pigmentation, cell wall composition, and colony morphology — all of which scatter and absorb light differently across 400–1000 nm.
-
-The pipeline covers:
-1. Dark/white reference calibration
-2. Agar plate background removal and individual colony segmentation
-3. Per-colony mean spectrum extraction
-4. Savitzky-Golay smoothing and derivative feature computation
-5. Export for 7-class classification (SA, ST, EC, F18, K12, LM, LI)
+Both VIS (400–1000 nm) and NIR (1000–1700 nm) ranges are processed with dedicated scripts. Both are **fully automated batch pipelines** — they auto-detect all `Yang_*` dataset folders and process them without any manual steps per sample.
 
 ---
 
 ## 📸 Sample Outputs
 
-> Place your figures inside the `sample_outputs/` folder and they will render here automatically.
+### Agar Plate — Original & Segmented
 
-### Agar Plate RGB Preview & Colony Segmentation
-| RGB Preview | Colony Mask |
-|---|---|
-| ![RGB Preview](./sample_outputs/rgb_preview.png) | ![Colony Mask](./sample_outputs/colony_mask.png) |
+<table>
+  <tr>
+    <td align="center"><b>Original Image</b></td>
+    <td align="center"><b>Segmented Colonies</b></td>
+  </tr>
+  <tr>
+    <td><img src="./original_image.png" width="380"/></td>
+    <td><img src="./segmented_colonies.png" width="380"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>RGB preview captured with the Specim FX10e.</em></td>
+    <td align="center"><em>Binary mask after CLAHE + inverted Otsu + area filter.</em></td>
+  </tr>
+</table>
 
-### Per-Species Mean Reflectance Spectra
-![Colony Spectra](./sample_outputs/colony_spectra.png)
-*Mean calibrated reflectance (400–1000 nm) for all 7 microbial classes. Shaded bands show ± 1 standard deviation across colonies of each class.*
-
-### False-Colour Colony Map
-![False Colour](./sample_outputs/false_colour_plate.png)
-*False-colour composite image of the agar plate, highlighting spectral differences between colony types that are invisible in standard RGB.*
-
-### Classification Confusion Matrix
-![Confusion Matrix](./sample_outputs/confusion_matrix.png)
+### Per-Colony Reflectance Spectrum
+![Microbes Spectral Graph](./Microbes_Spectral_Graph.png)
+*Mean calibrated reflectance spectrum per colony after Savitzky-Golay smoothing.*
 
 ---
 
 ## 📄 Scripts
 
-| Script | Description |
-|---|---|
-| `spectral_extraction_calibration.m` | Loads ENVI cube, applies calibration, extracts per-colony mean spectra using the labelled colony mask, exports feature matrix with class labels |
-| `image_segmentation.m` | Removes agar background using HSV-space thresholding; detects individual colonies via DBSCAN clustering or connected-component analysis; assigns unique colony labels |
+| Script | Sensor | Bands | Description |
+|---|---|---|---|
+| `microbial_extraction_VIS_400_1000nm.m` | Specim FX10e | 448 | Batch VIS pipeline — segments colonies, calibrates, extracts per-colony spectra (400–1000 nm), saves stacked outputs |
+| `microbial_extraction_NIR_1000_1700nm.m` | Specim FX17 | 224 | Batch NIR pipeline — same workflow for the 1000–1700 nm range; resamples to exactly 224 bands if needed |
+
+Both scripts are **identical in structure** — the only differences are the wavelength range, target band count, and SG window size.
+
+---
+
+## Pipeline
+
+```
+Yang_* dataset folders (auto-detected)
+      │
+      ▼
+Load RGB PNG → Grayscale → CLAHE contrast enhancement
+      │
+      ▼
+Inverted Otsu threshold → Fill holes → Area filter
+(keep colonies 5–5000 px, discard agar background)
+      │
+      ▼
+Load ENVI cube (.hdr/.raw) + Dark + White references
+      │
+      ▼
+Calibration: (Raw − Dark) / (White − Dark)
+      │
+      ▼
+Crop to wavelength range (400–1000 nm OR 1000–1700 nm)
+Resample to target band count (448 OR 224) if needed
+      │
+      ▼
+Per-colony binary mask → extract pixel spectra
+      │
+      ▼
+Mean spectrum → Savitzky-Golay smoothing
+      │
+      ▼
+Save per-colony: .mat, .csv, plot
+Save stacked matrix: .mat, .csv, plot
+Save reference plots: dark, white
+```
 
 ---
 
 ## 🗂️ Expected Data Structure
 
 ```
-<DATA_ROOT>/
-└── <SAMPLE_NAME>/
-    ├── <SAMPLE_NAME>.png
+<root_path>/
+└── Yang_<species>_<date>/
+    ├── Yang_<species>_<date>.png       ← RGB preview image
     └── capture/
-        ├── <SAMPLE_NAME>.hdr
-        ├── <SAMPLE_NAME>.raw
-        ├── DARKREF_<REF_NAME>.hdr
-        ├── DARKREF_<REF_NAME>.raw
-        ├── WHITEREF_<REF_NAME>.hdr
-        └── WHITEREF_<REF_NAME>.raw
+        ├── Yang_<species>_<date>.hdr   ← Raw cube header (ENVI)
+        ├── Yang_<species>_<date>.raw   ← Raw cube data
+        ├── DARKREF_Yang_....hdr / .raw ← Dark reference
+        └── WHITEREF_Yang_....hdr / .raw← White reference
 ```
 
 ---
 
 ## ⚙️ Configuration
 
+Both scripts have a **USER CONFIGURATION** block at the top — only these need changing:
+
 ```matlab
-% =========================================================================
-%  USER CONFIGURATION
-% =========================================================================
+root_path       = 'your\path\to\Yang_datasets\';  % folder with all Yang_* subfolders
+out_root        = fullfile(root_path, 'Processed_output\');
 
-DATA_ROOT   = "C:\Your\Data\Path\";          % <-- your local data folder
-SAMPLE_NAME = "your_sample_name_here";        % <-- sample dataset name
-REF_NAME    = "your_reference_name_here";     % <-- dark/white ref dataset name
+MIN_COLONY_AREA = 5;      % minimum colony size in pixels
+MAX_COLONY_AREA = 5000;   % maximum colony size in pixels
 
-% Class labels — update to match your experimental species
-CLASS_LABELS = {'SA', 'ST', 'EC', 'F18', 'K12', 'LM', 'LI'};  % <-- 7 classes
-
-% Minimum colony area in pixels — smaller blobs discarded as noise
-MIN_COLONY_AREA = 200;   % <-- adjust based on imaging resolution
+SG_WINDOW = 31;   % Savitzky-Golay window (NIR) — must be odd
+SG_WINDOW = 51;   % Savitzky-Golay window (VIS) — must be odd
+SG_ORDER  = 2;
 ```
 
 ---
@@ -92,28 +122,70 @@ MIN_COLONY_AREA = 200;   % <-- adjust based on imaging resolution
 ## 🚀 Quick Start
 
 ```matlab
-cd('path/to/Hyperspectral-Imaging/Microbial-Colonies')
-run('image_segmentation.m')               % verify colony masks
-run('spectral_extraction_calibration.m')  % extract per-colony spectra
+cd('C:\Hyperspectral-Imaging\Microbial-Colonies')
+
+% VIS 400-1000 nm
+microbial_extraction_VIS_400_1000nm()
+
+% NIR 1000-1700 nm
+microbial_extraction_NIR_1000_1700nm()
+```
+
+> Note: both scripts are MATLAB functions — call them by name rather than using `run()`.
+
+---
+
+## 📊 Output Structure (per Yang_* dataset)
+
+```
+Processed_output/
+└── Yang_<name>/
+    ├── reference_graphs/
+    │   ├── dark_reference.png
+    │   └── white_reference.png
+    ├── BW_Img/
+    │   └── BW_colony_001.png ... BW_colony_NNN.png
+    ├── data/
+    │   ├── E_<name>_colony_1_<range>_<bands>b.mat / .csv
+    │   ├── ...
+    │   ├── stacked_<name>_<range>_<bands>b.mat / .csv
+    │   └── wavelengths_<name>_<range>_<bands>b.mat / .csv
+    ├── Graph_of_each_colony/
+    │   └── E_<name>_colony_1_<range>_<bands>b.png ...
+    └── stacked_data/
+        ├── overall_BW.png
+        ├── stacked_<name>_<range>_<bands>b.mat / .csv
+        └── stacked_<name>_<range>_<bands>b.png
 ```
 
 ---
 
-## 📊 Output Variables
+## 🔬 Key Differences Between VIS and NIR Scripts
 
-| Variable | Size | Description |
+| Feature | VIS (400–1000 nm) | NIR (1000–1700 nm) |
 |---|---|---|
-| `colony_labels` | H × W | Integer-labelled colony mask (0 = background/agar) |
-| `calibrated_data` | H × W × Bands | Calibrated reflectance cube |
-| `colony_spectra` | N_colonies × Bands | Mean spectrum per colony |
-| `colony_class` | N_colonies × 1 | Class label string per colony |
+| Sensor | Specim FX10e | Specim FX17 |
+| Target bands | 448 | 224 |
+| SG window | 51 | 31 |
+| Extraction method | Band-by-band loop | Vectorized reshape |
+| File suffix | `_400_1000nm_448b` | `_1000_1700nm_224b` |
+
+---
+
+## 📥 Sample Data
+
+| Dataset | Sensor | Download |
+|---|---|---|
+| E. coli — VIS 400–1000 nm | Specim FX10e (448 bands) | **[Download from Google Drive](https://drive.google.com/drive/folders/1idd5-2sESb7mXl9R1JpqJVkQZiGJL_Z6?usp=drive_link)** |
+| E. coli — NIR 1000–1700 nm | Specim FX17 (224 bands) | **[Download from Google Drive](https://drive.google.com/drive/folders/1c2ikAKv7D1nBEV3EtF6j1WQkDBsqAAwg?usp=drive_link)** |
+
+> Extract each folder into your `root_path` directory. The folder names follow the `Yang_*` naming convention and will be auto-detected by both scripts.
 
 ---
 
 ## 🔗 Related Work
 
-- **NEAT-WaveFormer** — NEAT-evolved TransformerMLP with confidence-gated dual-channel fusion (VIS + NIR) for 7-class microbial classification (journal submission in preparation)
-- **MATLAB hyperspectral batch pipeline** — Batch processing of ENVI cubes for colony spectra with Savitzky-Golay filtering and calibration validation
+- **NEAT-WaveFormer** — NEAT-evolved dual-channel TransformerMLP for 7-class microbial classification using VIS + NIR stacked spectra (manuscript in preparation)
 
 ---
 
