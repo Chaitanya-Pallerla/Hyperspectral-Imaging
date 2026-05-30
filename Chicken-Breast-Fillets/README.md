@@ -24,7 +24,7 @@ Two scripts are provided — one for **single-sample** exploration and one for *
   </tr>
   <tr>
     <td><img src="./Normal_Breast_Fillet.png" width="250"/></td>
-    <td><img src="./Segmented_Image.png" width="250"/></td>
+    <td><img src="./Segmented_image.png" width="250"/></td>
     <td><img src="./Normal_Breast_Graph.png" width="250"/></td>
   </tr>
   <tr>
