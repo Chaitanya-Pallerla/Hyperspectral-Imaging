@@ -1,51 +1,83 @@
 # 🌾 Rice — Hyperspectral Imaging
 
-**Target:** Grain chalkiness classification  
-**Sensor:** VIS Push-broom HSI Camera — 400–1000 nm, 448 bands  
+**Target:** Grain-level chalkiness and quality classification — Brown Rice, Rough Rice  
+**Camera:** Specim FX10e — VIS Push-broom HSI, 400–1000 nm, 448 bands  
 **Lab:** SAFE Lab, University of Arkansas
 
 ---
 
 ## Overview
 
-This sub-project processes hyperspectral image cubes of rice grains to classify **chalkiness** — a quality defect caused by loosely packed starch granules that scatter light and reduce grain translucency. Chalky rice commands lower market prices and has inferior milling yield.
+This sub-project processes hyperspectral image cubes of rice grain trays to extract per-grain reflectance spectra. Grains are arranged in a physical grid (up to 400 grains per scan, labelled 1–400 across batches of 100). Each grain is individually segmented, sorted row-by-row left-to-right, calibrated, and its mean spectrum saved for downstream classification.
 
-HSI provides a **non-destructive** alternative to manual visual scoring by capturing per-grain spectral signatures that correlate with the degree of chalkiness across the full grain surface.
-
-The pipeline covers:
-1. Dark/white reference calibration (400–1000 nm)
-2. Individual grain segmentation using adaptive thresholding and watershed
-3. Superpixel-level feature extraction using **SFRM** (Spatial Feature Region Mapping)
-4. Per-grain mean spectrum computation
-5. Export for SVM / Random Forest classification
+Two rice types are supported: **rough rice** (unhusked) and **brown rice** (dehusked), each with distinct spectral characteristics due to differences in the outer bran and husk layers.
 
 ---
 
 ## 📸 Sample Outputs
 
-> Place your figures inside the `sample_outputs/` folder and they will render here automatically.
+### Mean Reflectance Spectra
 
-### RGB Preview & Grain Segmentation
-| RGB Preview | Segmented Grains |
-|---|---|
-| ![RGB Preview](./sample_outputs/rgb_preview.png) | ![Grain Segmentation](./sample_outputs/grain_segmentation.png) |
+<img src="./Brown_Rice_Graph.png" width="400"/> <img src="./Rough_Rice_Graph.png" width="400"/>
 
-### Per-Grain Reflectance Spectra
-![Grain Spectra](./sample_outputs/grain_spectra.png)
-*Mean calibrated reflectance for normal (translucent) vs chalky rice grains across 400–1000 nm. Chalky grains exhibit elevated short-wavelength reflectance due to air pocket scattering.*
+*Left: Brown rice (dehusked) — Right: Rough rice (unhusked). Mean normalised reflectance (400–1000 nm) after calibration.*
 
-### Chalkiness Classification Map
-![Classification Map](./sample_outputs/classification_map.png)
-*Pseudo-colour overlay mapping each segmented grain to its predicted class: Normal (green), Chalky (red), Partially Chalky (orange).*
+---
+
+## 🎥 Sample Videos
+
+### Grain-by-Grain Extraction — Grains 1–100
+> 📹 **[Watch on Google Drive — grain1-100.mp4](https://drive.google.com/file/d/1oB54OFdD-_Ni6t64uoQS8kMYxeMPZIXV/view?usp=drive_link)**  
+> Shows the per-grain loop cycling through each binary mask and reflectance plot for grains 1–100.
+
+### Full Grid Loop Processing
+> 📹 **[Watch on Google Drive — Grid Loop Processing](https://drive.google.com/file/d/1Wm6B7jGv6UJ2TtFJZ_IyCXzP6mB86y9R/view?usp=drive_link)**  
+> Demonstrates the complete horizontal grid extraction pipeline — segmentation, row sorting, and per-grain calibration.
 
 ---
 
 ## 📄 Scripts
 
-| Script | Description |
-|---|---|
-| `spectral_extraction_calibration.m` | Loads ENVI cube, calibrates, extracts per-grain mean spectra using labelled grain masks, exports feature matrix |
-| `image_segmentation.m` | Segments individual rice grains using adaptive thresholding, distance transform, and watershed; assigns unique labels to each grain; exports labelled mask |
+| Script | Mode | Description |
+|---|---|---|
+| `rice_single_sample.m` | Single sample | Crops ROI, segments all grains as one mask, calibrates and extracts the mean normalised spectrum — good for exploring a new dataset |
+| `grid_loop_horizontal_rice.m` | Batch — per grain | Segments and labels individual grains, sorts row-by-row left-to-right, extracts and saves per-grain spectra, stacks into a matrix (Bands × N_grains) |
+
+---
+
+## Pipeline
+
+```
+RGB Image (.png)
+      │
+      ▼
+Crop ROI (x1,y1 → x2,y2)
+      │
+      ▼
+Grayscale → Otsu Threshold → Fill Holes → Remove Noise
+      │
+      ▼
+[Single script]              [Grid loop script]
+Mean mask extraction    →    bwlabel → sort by row → sort left-to-right
+      │                            │
+      ▼                            ▼
+Load ENVI Cube + Dark/White    Per-grain binary mask
+      │                            │
+      ▼                            ▼
+Crop cube to ROI            Crop cube to ROI
+      │                            │
+      ▼                            ▼
+Calibration: (Raw − Dark) / (White − Dark)
+      │                            │
+      ▼                            ▼
+Extract ROI spectra         Extract per-grain spectra
+      │                            │
+      ▼                            ▼
+Normalise [0,1]             Mean per grain → save .mat
+      │                            │
+      ▼                            ▼
+Plot                        Stack → save .mat + .csv
+```
 
 ---
 
@@ -54,31 +86,40 @@ The pipeline covers:
 ```
 <DATA_ROOT>/
 └── <SAMPLE_NAME>/
-    ├── <SAMPLE_NAME>.png
+    ├── <SAMPLE_NAME>.png              ← RGB preview image
     └── capture/
-        ├── <SAMPLE_NAME>.hdr
-        ├── <SAMPLE_NAME>.raw
-        ├── DARKREF_<REF_NAME>.hdr
-        ├── DARKREF_<REF_NAME>.raw
-        ├── WHITEREF_<REF_NAME>.hdr
-        └── WHITEREF_<REF_NAME>.raw
+        ├── <SAMPLE_NAME>.hdr          ← Raw cube header (ENVI)
+        ├── <SAMPLE_NAME>.raw          ← Raw cube data
+        ├── DARKREF_<SAMPLE_NAME>.hdr  ← Dark reference
+        ├── DARKREF_<SAMPLE_NAME>.raw
+        ├── WHITEREF_<SAMPLE_NAME>.hdr ← White reference
+        └── WHITEREF_<SAMPLE_NAME>.raw
 ```
+
+> White references can optionally come from a **separate dataset folder** — set `USE_SEPARATE_REF = true` in the grid loop script and provide `REF_ROOT` and `REF_NAME`.
 
 ---
 
 ## ⚙️ Configuration
 
+### Single-sample script
 ```matlab
-% =========================================================================
-%  USER CONFIGURATION
-% =========================================================================
+DATA_ROOT   = "your\path\to\data\";
+SAMPLE_NAME = "your_sample_name";
+x1 = 419;  y1 = 447;   % ROI top-left  — adjust for your image
+x2 = 659;  y2 = 676;   % ROI bottom-right
+```
 
-DATA_ROOT   = "C:\Your\Data\Path\";          % <-- your local data folder
-SAMPLE_NAME = "your_sample_name_here";        % <-- sample dataset name
-REF_NAME    = "your_reference_name_here";     % <-- dark/white ref dataset name
-
-% Minimum grain area in pixels — smaller objects will be discarded as noise
-MIN_GRAIN_AREA = 500;    % <-- adjust based on your image resolution
+### Grid loop script
+```matlab
+DATA_ROOT        = "your\path\to\data\";
+SAMPLE_NAME      = "your_sample_name";
+USE_SEPARATE_REF = false;          % set true if white ref is in a different folder
+x1 = 243;  y1 = 118;              % ROI coordinates — adjust per batch
+x2 = 829;  y2 = 613;
+ROW_THRESHOLD    = 15;             % y-distance threshold for row grouping
+GRAIN_START      = 1;              % 1 for first batch, 101 for second, etc.
+output_folder_path = "your\output\path\";
 ```
 
 ---
@@ -86,27 +127,42 @@ MIN_GRAIN_AREA = 500;    % <-- adjust based on your image resolution
 ## 🚀 Quick Start
 
 ```matlab
-cd('path/to/Hyperspectral-Imaging/Rice')
-run('image_segmentation.m')               % verify grain labels
-run('spectral_extraction_calibration.m')  % extract per-grain spectra
+cd('C:\Hyperspectral-Imaging\Rice')
+
+% Single sample — explore one scan
+run('rice_single_sample.m')
+
+% Per-grain batch — extract all grains from a tray
+run('grid_loop_horizontal_rice.m')
 ```
 
 ---
 
 ## 📊 Output Variables
 
+### Single-sample script
+
 | Variable | Size | Description |
 |---|---|---|
-| `grain_labels` | H × W | Integer-labelled grain mask (0 = background) |
-| `calibrated_data` | H × W × Bands | Calibrated reflectance cube |
-| `grain_spectra` | N_grains × Bands | Mean spectrum per grain |
-| `grain_stats` | N_grains × 1 struct | Area, centroid, bounding box per grain |
+| `BW` | H × W | Binary grain mask |
+| `calibrated_data` | H × W × 448 | Calibrated reflectance cube |
+| `extracted_data` | 448 × N\_pixels | Per-pixel spectra |
+| `E_normalized` | 448 × 1 | Normalised mean spectrum |
+
+### Grid loop script
+
+| Output | Format | Description |
+|---|---|---|
+| `ED_all<N>.mat` | MAT | Per-grain mean spectrum (448 × 1) |
+| `stacked_E_<start>_<end>.mat` | MAT | All grain spectra stacked (448 × N\_grains) |
+| `stacked_E_<start>_<end>.csv` | CSV | Same data in CSV format |
 
 ---
 
 ## 🔗 Related Work
 
-- **Rice chalkiness classification** — HSI with SFRM achieving 96.96% 3-class accuracy (manuscript at major revision)
+- **Rice chalkiness classification** — HSI + SFRM achieving 96.96% 3-class accuracy
+- **NAS-WD framework** — neural architecture search adapted for grain quality classification
 
 ---
 
