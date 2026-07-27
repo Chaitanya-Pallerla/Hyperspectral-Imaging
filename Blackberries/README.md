@@ -65,7 +65,8 @@ The pipeline runs in three stages — **segmentation → labelling → spectral 
 </table>
 
 > 📥 **[Download Sample Dataset (Google Drive)](https://drive.google.com/drive/folders/1p9c1barmlBz4l13Q3Wc0V8V5tfAg2Dyi?usp=drive_link)**
-> > 📥 **[Download Extracted Dataset](./Blackberry_spectra_physicochemical_dataset.csv)** 
+> > 📥 **[Download Extracted Dataset](./Blackberry_spectra_physicochemical_dataset.csv)**
+> > 
 > Extract into your data root folder and update `SAMPLE_NAME` in the USER CONFIGURATION block to run the pipeline on this sample.
 
 ---
