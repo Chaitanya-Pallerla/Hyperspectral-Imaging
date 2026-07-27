@@ -49,14 +49,23 @@ The pipeline runs in three stages — **segmentation → labelling → spectral 
 <table>
   <tr>
     <td align="center"><b>Spectral Reflectance Curve for Different Cultivers.</b></td>
+  </tr>
+  <tr>
+    <td><img src="./Filtered_All_Reflectance_Spectra.png" width="600"/></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
     <td align="center"><b>Mean Spectral Reflectance Curve.</b></td>
   </tr>
   <tr>
-    <td><img src="./Filtered_All_Reflectance_Spectra.png" width="250"/></td>
-    <td><img src="./Filtered_Mean_Reflectance_Spectra.png" width="250"/></td>
+    <td><img src="./Filtered_Mean_Reflectance_Spectra.png" width="600"/></td>
   </tr>
 </table>
-> 📥 **[Download Sample Dataset (Google Drive)](https://drive.google.com/drive/folders/1p9c1barmlBz4l13Q3Wc0V8V5tfAg2Dyi?usp=drive_link)**  
+
+> 📥 **[Download Sample Dataset (Google Drive)](https://drive.google.com/drive/folders/1p9c1barmlBz4l13Q3Wc0V8V5tfAg2Dyi?usp=drive_link)**
+> > 📥 **[Download Extracted Dataset](./Blackberry_spectra_physicochemical_dataset.csv)** 
 > Extract into your data root folder and update `SAMPLE_NAME` in the USER CONFIGURATION block to run the pipeline on this sample.
 
 ---
